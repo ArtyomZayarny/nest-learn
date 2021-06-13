@@ -9,16 +9,15 @@ import { User } from "./user.entity";
 export class UserRepository extends Repository<User> {
 
     async signUp(authCredentialsDto: AuthCreadentialsDto): Promise<void> {
-        const {username, password} = authCredentialsDto; 
-
-        const salt = await bcrypt.genSalt();
-        console.log(salt)
-
+        const {username, password} = authCredentialsDto;
+        
         const user = new User();
         user.username = username;
-        user.password = password;
+        user.salt = await bcrypt.genSalt();
+        user.password = await this.hashPassword(password, user.salt);
+
         try{
-          //  await user.save();
+          await user.save();
         } catch(error) {
             if (error.code === '23505') {
                 throw new ConflictException('Username already exists'); 
