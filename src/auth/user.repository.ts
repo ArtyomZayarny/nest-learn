@@ -1,5 +1,6 @@
 import { ConflictException, InternalServerErrorException } from "@nestjs/common";
 import { EntityRepository, Repository } from "typeorm";
+import * as bcrypt from 'bcrypt';
 import { AuthCreadentialsDto } from "./dto/auth-credentials.dto";
 import { User } from "./user.entity";
 
@@ -8,12 +9,16 @@ import { User } from "./user.entity";
 export class UserRepository extends Repository<User> {
 
     async signUp(authCredentialsDto: AuthCreadentialsDto): Promise<void> {
-        const {username, password} = authCredentialsDto;
+        const {username, password} = authCredentialsDto; 
+
+        const salt = await bcrypt.genSalt();
+        console.log(salt)
+
         const user = new User();
         user.username = username;
         user.password = password;
         try{
-            await user.save();
+          //  await user.save();
         } catch(error) {
             if (error.code === '23505') {
                 throw new ConflictException('Username already exists'); 
@@ -23,6 +28,10 @@ export class UserRepository extends Repository<User> {
             console.log(error.code)
         }
         
+    }
+
+    private async hashPassword(password: string, salt: string): Promise<string> {
+        return bcrypt.hash(password, salt)
     }
 
 }
