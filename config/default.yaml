@@ -4,7 +4,12 @@ server:
 db:
   type: 'postgres'
   port: 5432
+  host: 'localhost'
+  username: 'postgres'
+  password: 'travis182'
+  synchronize: true
   database: 'taskmanagment'
 
 jwt:
   expiresIn: 3600
+  secret: 'topSecret51'
